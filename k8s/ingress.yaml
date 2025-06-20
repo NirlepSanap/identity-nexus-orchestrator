@@ -1,0 +1,55 @@
+
+# NGINX Ingress for multi-version routing
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: identity-api-ingress
+  namespace: identity-v1
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+  - hosts:
+    - api.identity-nexus.com
+    secretName: identity-api-tls
+  rules:
+  - host: api.identity-nexus.com
+    http:
+      paths:
+      # Version 1.0 routes
+      - path: /v1
+        pathType: Prefix
+        backend:
+          service:
+            name: identity-api-service-v1
+            port:
+              number: 80
+      # Version 1.1 routes  
+      - path: /v1.1
+        pathType: Prefix
+        backend:
+          service:
+            name: identity-api-service-v1-1
+            port:
+              number: 80
+      # Version 2.0 routes
+      - path: /v2
+        pathType: Prefix
+        backend:
+          service:
+            name: identity-api-service-v2
+            port:
+              number: 80
+      # Default to latest version
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: identity-api-service-v2
+            port:
+              number: 80

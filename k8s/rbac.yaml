@@ -1,0 +1,63 @@
+
+# Service Account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: identity-api-sa
+  namespace: identity-v1
+---
+# Role for identity-api pods
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: identity-api-role
+  namespace: identity-v1
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch"]
+---
+# RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: identity-api-rolebinding
+  namespace: identity-v1
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: identity-api-role
+subjects:
+- kind: ServiceAccount
+  name: identity-api-sa
+  namespace: identity-v1
+---
+# ClusterRole for cross-namespace access
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: identity-api-cluster-role
+rules:
+- apiGroups: [""]
+  resources: ["nodes", "nodes/metrics"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["metrics.k8s.io"]
+  resources: ["nodes", "pods"]
+  verbs: ["get", "list"]
+---
+# ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: identity-api-cluster-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: identity-api-cluster-role
+subjects:
+- kind: ServiceAccount
+  name: identity-api-sa
+  namespace: identity-v1

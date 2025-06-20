@@ -1,0 +1,25 @@
+
+# Namespace definitions for multi-version deployment
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: identity-v1
+  labels:
+    version: "1.0"
+    environment: production
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: identity-v1-1
+  labels:
+    version: "1.1"
+    environment: production
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: identity-v2
+  labels:
+    version: "2.0"
+    environment: production
