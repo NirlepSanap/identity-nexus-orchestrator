@@ -1,8 +1,8 @@
 
-import IdentityReconciliation from '@/components/IdentityReconciliation';
+import IdentityReconciliationAuth from '@/components/IdentityReconciliationAuth';
 
 const Index = () => {
-  return <IdentityReconciliation />;
+  return <IdentityReconciliationAuth />;
 };
 
 export default Index;
