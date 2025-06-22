@@ -57,40 +57,45 @@ export class FirebaseContactService {
 
   static async findRelatedContacts(email?: string, phoneNumber?: string, userId?: string) {
     try {
-      const constraints = [];
+      const allContacts: FirebaseContact[] = [];
       
-      if (userId) {
-        constraints.push(where('userId', '==', userId));
-      }
-
       // Create separate queries for email and phone
-      const queries = [];
-      
       if (email) {
-        const emailQuery = query(
-          collection(db, CONTACTS_COLLECTION),
-          where('email', '==', email),
-          ...constraints
-        );
-        queries.push(emailQuery);
+        const emailQuery = userId
+          ? query(
+              collection(db, CONTACTS_COLLECTION),
+              where('email', '==', email),
+              where('userId', '==', userId)
+            )
+          : query(
+              collection(db, CONTACTS_COLLECTION),
+              where('email', '==', email)
+            );
+        
+        const emailSnapshot = await getDocs(emailQuery);
+        emailSnapshot.docs.forEach(doc => {
+          const contact = { id: doc.id, ...doc.data() } as FirebaseContact;
+          if (!allContacts.find(c => c.id === contact.id)) {
+            allContacts.push(contact);
+          }
+        });
       }
       
       if (phoneNumber) {
-        const phoneQuery = query(
-          collection(db, CONTACTS_COLLECTION),
-          where('phoneNumber', '==', phoneNumber),
-          ...constraints
-        );
-        queries.push(phoneQuery);
-      }
-
-      const allContacts: FirebaseContact[] = [];
-      
-      for (const q of queries) {
-        const querySnapshot = await getDocs(q);
-        querySnapshot.docs.forEach(doc => {
+        const phoneQuery = userId
+          ? query(
+              collection(db, CONTACTS_COLLECTION),
+              where('phoneNumber', '==', phoneNumber),
+              where('userId', '==', userId)
+            )
+          : query(
+              collection(db, CONTACTS_COLLECTION),
+              where('phoneNumber', '==', phoneNumber)
+            );
+        
+        const phoneSnapshot = await getDocs(phoneQuery);
+        phoneSnapshot.docs.forEach(doc => {
           const contact = { id: doc.id, ...doc.data() } as FirebaseContact;
-          // Avoid duplicates
           if (!allContacts.find(c => c.id === contact.id)) {
             allContacts.push(contact);
           }
