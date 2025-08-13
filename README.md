@@ -356,8 +356,4 @@ For support and questions:
 - Contact the development team
 - Check the documentation wiki
 
----
 
-**Built with ❤️ by the DevOps Engineering Team**
-
-*Demonstrating enterprise-grade full-stack development with modern DevOps practices*
